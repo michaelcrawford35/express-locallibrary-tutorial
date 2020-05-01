@@ -10,14 +10,18 @@ const book_controller = require('./controllers/bookController');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const catalogRouter = require('./routes/catalog');  //Import routes for "catalog" area of site
-
+const compression = require('compression');
+const helmet = require('helmet');
 const app = express();
+
+app.use(helmet());
 
 dotenv.config({ path: '.env' })
 
 const mongoose = require('mongoose')
 
-const db_conn_str = process.env.MONGO_CONN
+const dev_db_url = 'mongodb+srv://cooluser:coolpassword@cluster0-mbdj7.mongodb.net/local_library?retryWrites=true'
+const db_conn_str = process.env.MONGO_CONN || dev_db_url
 
 mongoose.connect(db_conn_str, {useNewUrlParser: true, useUnifiedTopology: true})
 mongoose.Promise = global.Promise;
@@ -32,6 +36,9 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(compression()); //Compress all routes
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
